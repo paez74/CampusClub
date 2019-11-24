@@ -18,16 +18,17 @@
       <div ref="printForm">
         <div class="grid-container">
           <div class="wrapper-850229" tabindex="0">
-            <v-text-field
+            <v-select
               v-model="form.rank"
-              class="classic-text-field"
+              :items="ranks"
+              class="classic-select-field"
               :disabled="view"
               :rules="[(v) => !!v || 'Campo requerido']"
             >
               <template slot="prepend"
                 >Rango<span>*</span></template
               >
-            </v-text-field>
+            </v-select>
           </div>
           <div class="wrapper-special wrapper-3377307" tabindex="1">
             <v-divider class="header divider-container"></v-divider>
@@ -259,6 +260,12 @@ export default {
           actionsMap[type]();
         }
       },
+      ranks: [
+        { value: 'instructor', text: 'Instructor' },
+        { value: 'assistant', text: 'Asistente' },
+        { value: 'associate', text: 'Asociado' },
+        { value: 'head', text: 'Titular' }
+      ],
 
       searchAdvisorOf: ''
     };

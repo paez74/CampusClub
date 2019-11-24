@@ -18,16 +18,17 @@
       <div ref="printForm">
         <div class="grid-container">
           <div class="wrapper-1369451" tabindex="0">
-            <v-text-field
+            <v-select
               v-model="form.status"
-              class="classic-text-field"
+              :items="statuses"
+              class="classic-select-field"
               :disabled="view"
               :rules="[(v) => !!v || 'Campo requerido']"
             >
               <template slot="prepend"
                 >Estatus<span>*</span></template
               >
-            </v-text-field>
+            </v-select>
           </div>
           <div class="wrapper-special wrapper-3426486" tabindex="1">
             <v-divider class="header divider-container"></v-divider>
@@ -237,7 +238,13 @@ export default {
         }
       },
       majors: [],
-      showSelectMajor: false
+      showSelectMajor: false,
+      statuses: [
+        { value: 'freshman', text: 'Freshman' },
+        { value: 'sophmore', text: 'Sophmore' },
+        { value: 'junior', text: 'Junior' },
+        { value: 'senior', text: 'Senior' }
+      ]
     };
   },
   methods: {

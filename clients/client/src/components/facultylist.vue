@@ -27,15 +27,23 @@
       <v-container fluid>
         <v-layout row wrap>
           <v-flex xs12 sm4 md4>
-            <v-text-field
+            <v-select
               v-model="search.rank"
-              class="classic-text-field"
-              :rules="[]"
+              :items="[
+                { label: '', value: '' },
+                { label: 'Instructor', value: 'instructor' },
+                { label: 'Asistente', value: 'assistant' },
+                { label: 'Asociado', value: 'associate' },
+                { label: 'Titular', value: 'head' }
+              ]"
+              class="classic-select-field"
+              item-text="label"
+              item.value="value"
             >
               <template slot="prepend"
                 >Rango</template
               >
-            </v-text-field>
+            </v-select>
           </v-flex>
 
           <v-flex xs12 sm4 md4>
@@ -60,7 +68,7 @@
 
     <entity-list-table :config="tableConfig" :list="list" :loading="loading">
       <template slot-scope="{ props }">
-        <td class="text-xs-left">{{ props.item.rank }}</td>
+        <td class="text-xs-left">{{ getRankDisplay(props.item.rank) }}</td>
         <td class="text-xs-left">
           {{ props.item.worksIn ? props.item.worksIn.name : '' }}
         </td>
@@ -160,13 +168,20 @@ export default {
     searchOnTable: function() {
       var self = this;
       this.list = _.filter(this.source, function(item) {
-        return (
-          1 === 2 ||
-          (item.rank
-            ? item.rank.toLowerCase().includes(self.search.toLowerCase())
-            : 1 === 2)
-        );
+        return 1 === 2;
       });
+    },
+    getRankDisplay: function(value) {
+      switch (value) {
+        case 'instructor':
+          return 'Instructor';
+        case 'assistant':
+          return 'Asistente';
+        case 'associate':
+          return 'Asociado';
+        case 'head':
+          return 'Titular';
+      }
     },
     clean(field) {
       this.search[field] = null;
