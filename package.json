@@ -1,0 +1,15 @@
+{
+  "name": "campus_club",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "install": "cd clients/client && npm i && cd ../../ && cd server && npm i",
+    "server": "cd server && npm start",
+    "clientClient": "cd clients/client && npm run build:w",
+    "build": "cd clients/client && npm run build && cd ../../ && cd server && npm run build"
+  },
+  "author": "Los chicos del Barrio",
+  "license": "ISC"
+}
