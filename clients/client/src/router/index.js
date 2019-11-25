@@ -8,6 +8,8 @@ import home from '@/components/home';
 
 import facultylist from '@/components/facultylist';
 import facultyform from '@/components/facultyform';
+import studentfromlist from '@/components/studentfromlist';
+import studentfromform from '@/components/studentfromform';
 import studentlist from '@/components/studentlist';
 import studentform from '@/components/studentform';
 import personlist from '@/components/personlist';
@@ -80,6 +82,43 @@ export default new Router({
           path: '/facultydetail/:id',
           name: 'facultydetail',
           component: facultyform
+        },
+        {
+          path: '/studentfromlist/:from_catalog?',
+          name: 'studentfromlist',
+          component: studentfromlist,
+          meta: {
+            requiresAuth: true,
+            credentials: [
+              'studentfromRead',
+              'studentfromUpdate',
+              'studentfromCreate',
+              'studentfromDelete'
+            ]
+          }
+        },
+        {
+          path: '/studentfromform',
+          name: 'studentfromform',
+          component: studentfromform,
+          meta: {
+            requiresAuth: true,
+            credentials: ['studentfromCreate']
+          }
+        },
+        {
+          path: '/studentfromform/:id',
+          name: 'studentfromformedit',
+          component: studentfromform,
+          meta: {
+            requiresAuth: true,
+            credentials: ['studentfromUpdate']
+          }
+        },
+        {
+          path: '/studentfromdetail/:id',
+          name: 'studentfromdetail',
+          component: studentfromform
         },
         {
           path: '/studentlist/:from_catalog?',

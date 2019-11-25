@@ -6,10 +6,3 @@ const ErrorEnums = require('../lib/enums/error');
 exports.onSaveValidations = (entity) => {};
 
 exports.onDeleteValidations = (entity) => {};
-
-exports.isFormComplete = (entity) => {
-  const requiredFields = ['name', 'rank'];
-  if (utils.isAnyFieldNullOrEmpty(entity, requiredFields)) {
-    throw new ErrorEnums.Enums.IncompleteFrom();
-  }
-};

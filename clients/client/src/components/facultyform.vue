@@ -17,7 +17,19 @@
       </v-toolbar>
       <div ref="printForm">
         <div class="grid-container">
-          <div class="wrapper-850229" tabindex="0">
+          <div class="wrapper-9286408" tabindex="0">
+            <v-text-field
+              v-model="form.name"
+              class="classic-text-field"
+              :disabled="view"
+              :rules="[(v) => !!v || 'Campo requerido']"
+            >
+              <template slot="prepend"
+                >Nombre<span>*</span></template
+              >
+            </v-text-field>
+          </div>
+          <div class="wrapper-850229" tabindex="1">
             <v-select
               v-model="form.rank"
               :items="ranks"
@@ -30,7 +42,7 @@
               >
             </v-select>
           </div>
-          <div class="wrapper-special wrapper-3377307" tabindex="1">
+          <div class="wrapper-special wrapper-3377307" tabindex="2">
             <v-divider class="header divider-container"></v-divider>
             <div class="text divider-container">
               <div>
@@ -38,7 +50,7 @@
               </div>
             </div>
           </div>
-          <div class="wrapper-1612754" tabindex="2">
+          <div class="wrapper-1612754" tabindex="3">
             <div class="many-to-one-input-container">
               <v-select
                 v-model="form.worksInId"
@@ -115,58 +127,12 @@
               ></department-modal-form>
             </div>
           </div>
-          <div class="wrapper-special wrapper-5089067" tabindex="3">
+          <div class="wrapper-special wrapper-5089067" tabindex="4">
             <v-divider class="header divider-container"></v-divider>
             <div class="text divider-container">
               <div>
                 Consejero de
               </div>
-            </div>
-          </div>
-          <div class="wrapper-3370673" tabindex="4">
-            <br />
-            <div>
-              <div class="relationship-title">
-                <div>
-                  <v-spacer></v-spacer>
-                  <v-btn
-                    class="classic-button-icon"
-                    v-if="!view && credentials.campusClubCreate"
-                    color="primary"
-                    @click="showCreateAdvisorOf = true"
-                  >
-                    Agregar
-                  </v-btn>
-                </div>
-                <div>
-                  <v-text-field
-                    v-model="searchAdvisorOf"
-                    class="classic-text-field"
-                  >
-                    <template slot="prepend"
-                      >Búsqueda...</template
-                    >
-                  </v-text-field>
-                </div>
-              </div>
-              <entity-list-table
-                :config="advisorOfTableConfig"
-                :list="filterAdvisorOfsList"
-              >
-                <template slot-scope="{ props }">
-                  <td class="text-xs-left">{{ props.item.name }}</td>
-                  <td class="text-xs-left">{{ props.item.phone }}</td>
-                </template>
-              </entity-list-table>
-              <campusClub-create
-                v-if="showCreateAdvisorOf"
-                @close="showCreateAdvisorOf = false"
-                @save="addAdvisorOf"
-                :formEdit="advisorOfEdit"
-                :parent="grandParent"
-                modalWidth="75%"
-                modalHeight="auto"
-              ></campusClub-create>
             </div>
           </div>
           <div class="wrapper-special wrapper-6695979" tabindex="5">
@@ -199,14 +165,12 @@ import Form from '../mixins/form';
 import { _ } from 'underscore';
 import moment from 'moment-timezone';
 import departmentModalForm from './modals/department-form';
-import campusClubCreate from './modals/campusClub-create';
 import entityListTable from './entity-list-table';
 
 export default {
   mixins: [Form],
   components: {
     departmentModalForm,
-    campusClubCreate,
     entityListTable
   },
   data() {
@@ -227,47 +191,16 @@ export default {
       showImageModal: false,
       imagePreviewId: '',
       form: {
-        worksIn: {},
-        advisorOfs: []
+        worksIn: {}
       },
       worksIns: [],
       showSelectWorksIn: false,
-      advisorOfEdit: null,
-      showCreateAdvisorOf: false,
-      advisorOfTableConfig: {
-        headers: [
-          { text: 'Nombre', value: 'name' },
-          { text: 'Telefono', value: 'phone' }
-        ],
-        enableContextMenu: true,
-        hasLoading: false,
-        showView: () => this.credentials.campusClubRead,
-        showEdit: () => this.credentials.campusClubUpdate && !this.view,
-        showDelete: () => this.credentials.campusClubDelete && !this.view,
-        pagination: {},
-        classicTheme: true,
-        actions: (type, item) => {
-          const actionsMap = {
-            view: () => this.goTo('/campusClubdetail/' + item.id),
-            edit: () => {
-              this.id
-                ? this.goTo('/campusClubform/' + item.id)
-                : (this.advisorOfEdit = item);
-              this.showCreateAdvisorOf = true;
-            },
-            delete: () => this.deleteAdvisorOf(item)
-          };
-          actionsMap[type]();
-        }
-      },
       ranks: [
         { value: 'instructor', text: 'Instructor' },
         { value: 'assistant', text: 'Asistente' },
         { value: 'associate', text: 'Asociado' },
         { value: 'head', text: 'Titular' }
-      ],
-
-      searchAdvisorOf: ''
+      ]
     };
   },
   methods: {
@@ -279,7 +212,6 @@ export default {
         this.$http.get('faculty/form').then((response) => {
           var newform = response.body.data.faculty;
           newform.worksIn = {};
-          newform.advisorOfs = [];
           this.form = newform;
           _.each(response.body.data.worksIns, function(item) {
             item.selected = false;
@@ -310,21 +242,6 @@ export default {
         );
       }
       this.setWorksIn(value.values);
-    },
-    addAdvisorOf(item) {
-      this.showCreateAdvisorOf = false;
-      if (this.advisorOfEdit == null) this.form.advisorOfs.push(item);
-      this.advisorOfEdit = null;
-    },
-    deleteAdvisorOf(item) {
-      this.form.advisorOfs = _.reject(this.form.advisorOfs, function(i) {
-        return i === item;
-      });
-      if (this.form.advisorOfsToDelete) {
-        this.form.advisorOfsToDelete.push(item);
-      } else {
-        this.form.advisorOfsToDelete = [item];
-      }
     },
     openImage(id) {
       this.imagePreviewId = id;
@@ -401,21 +318,6 @@ export default {
     }
   },
   computed: {
-    filterAdvisorOfsList: function() {
-      var self = this;
-      //Unificade Search
-      return _.filter(this.form.advisorOfs, function(item) {
-        return (
-          2 + 2 === 'pez' ||
-          !item.name ||
-          item.name
-            .toLowerCase()
-            .includes(self.searchAdvisorOf.toLowerCase()) ||
-          !item.phone ||
-          item.phone.toLowerCase().includes(self.searchAdvisorOf.toLowerCase())
-        );
-      });
-    },
     filterWorksIns: function() {
       return this.worksIns.filter((worksIn) => [true].every((x) => x));
     }
@@ -440,30 +342,32 @@ export default {
   column-gap: 10px;
 }
 
-.grid-container .wrapper-850229 {
+.grid-container .wrapper-9286408 {
   grid-column: 1 / span 12;
   grid-row: 1 / span 5;
   height: calc((4 * 6px) + 15px * 5);
   overflow: hidden;
 }
+.grid-container .wrapper-850229 {
+  grid-column: 1 / span 12;
+  grid-row: 6 / span 5;
+  height: calc((4 * 6px) + 15px * 5);
+  overflow: hidden;
+}
 .grid-container .wrapper-3377307 {
   grid-column: 1 / span 12;
-  grid-row: 6 / span 1;
+  grid-row: 11 / span 1;
 }
 
 .grid-container .wrapper-1612754 {
   grid-column: 1 / span 12;
-  grid-row: 7 / span 5;
+  grid-row: 12 / span 5;
 }
 .grid-container .wrapper-5089067 {
   grid-column: 1 / span 12;
-  grid-row: 12 / span 1;
+  grid-row: 17 / span 1;
 }
 
-.grid-container .wrapper-3370673 {
-  grid-column: 1 / span 12;
-  grid-row: 13 / span 5;
-}
 .grid-container .wrapper-6695979 {
   grid-column: 4 / span 2;
   grid-row: 18 / span 3;

@@ -10,16 +10,11 @@ const ErrorEnums = require('../lib/enums/error');
 class ListAttributes {
   constructor(where, as) {
     this.where = where;
-    this.model = dbcontext.faculty;
+    this.model = dbcontext.studentfrom;
     this.as = as;
     this.order = [];
-    this.attributes = ['id', 'name', 'rank'];
-    this.include = [
-      {
-        model: dbcontext.department,
-        as: 'worksIn'
-      }
-    ];
+    this.attributes = ['id'];
+    this.include = [];
   }
 
   toJSON() {
@@ -36,14 +31,12 @@ class ListAttributes {
 }
 
 /**
- * faculty middleware
+ * studentfrom middleware
  */
 const getByIdPromise = async (id, res) => {
-  const faculty = await dbcontext.faculty.findOne({
+  const studentfrom = await dbcontext.studentfrom.findOne({
     attributes: [
       'id',
-      'name',
-      'rank',
       'createdAt',
       'updatedAt',
       'createdById',
@@ -72,8 +65,9 @@ const getByIdPromise = async (id, res) => {
     },
     include: [
       {
-        model: dbcontext.department,
-        as: 'worksIn'
+        model: dbcontext.studentfrom,
+        as: 'descendents',
+        hierarchy: true
       },
       {
         model: dbcontext.user,
@@ -88,20 +82,21 @@ const getByIdPromise = async (id, res) => {
     ]
   });
 
-  if (res) res.locals.faculty = faculty;
-  return faculty;
+  if (res) res.locals.studentfrom = studentfrom;
+  return studentfrom;
 };
 
 /**
  * FindOne by where query
  */
 const findOnePromise = async (whereQuery) => {
-  return await dbcontext.faculty.findOne({
+  return await dbcontext.studentfrom.findOne({
     where: whereQuery,
     include: [
       {
-        model: dbcontext.department,
-        as: 'worksIn'
+        model: dbcontext.studentfrom,
+        as: 'descendents',
+        hierarchy: true
       },
       {
         model: dbcontext.user,
@@ -118,62 +113,85 @@ const findOnePromise = async (whereQuery) => {
 };
 
 /**
- * List of faculties
+ * List of studentfroms
  */
 const listPromise = async (additionalWhere) => {
   let where = [];
 
   if (additionalWhere) {
     where = where.concat(
-      dbcontext.helper.searchHelper(additionalWhere, dbcontext.faculty)
+      dbcontext.helper.searchHelper(additionalWhere, dbcontext.studentfrom)
     );
   }
 
-  return await dbcontext.faculty.findAll(
+  return await dbcontext.studentfrom.findAll(
     new ListAttributes({
       deleted: false,
+      hierarchyLevel: 1,
       [Sequelize.Op.and]: where
     }).toJSON()
   );
 };
 
 /**
- * Create a faculty
+ * Create a studentfrom
  */
-const createPromise = async (faculty, link) => {
-  const facultyEntity = await dbcontext.faculty.create(faculty);
+const createPromise = async (studentfrom, link) => {
+  var children = studentfrom.children ? studentfrom.children : [];
+  const studentfromEntity = await dbcontext.studentfrom.create(studentfrom);
 
   var promises = [];
+  const childrenPromise = children.map((child) => {
+    child.parentId = studentfromEntity.id;
+    if (!child.hierarchyLevel) {
+      studentfrom.addChildren(child);
+    }
+    return dbcontext.studentfrom.create(child);
+  });
+  promises.push(...childrenPromise);
   await Promise.all(promises);
-  return facultyEntity;
+  return studentfromEntity;
 };
 
 /**
- * Update a faculty
+ * Update a studentfrom
  */
-const updatePromise = async (faculty, old_faculty, link) => {
-  faculty = _.extend(old_faculty, faculty);
+const updatePromise = async (studentfrom, old_studentfrom, link) => {
+  studentfrom = _.extend(old_studentfrom, studentfrom);
 
-  if (!faculty.save) {
-    faculty = dbcontext.faculty.build(faculty);
-    faculty.isNewRecord = false;
+  var children = studentfrom.children ? studentfrom.children : [];
+
+  if (!studentfrom.save) {
+    studentfrom = dbcontext.studentfrom.build(studentfrom);
+    studentfrom.isNewRecord = false;
   }
 
-  const facultyEntity = await faculty.save();
+  const studentfromEntity = await studentfrom.save();
   var promises = [];
+  const childrenPromise = children.map((child) => {
+    child.parentId = studentfrom.id;
+    if (!child.hierarchyLevel) {
+      studentfrom.addChildren(child);
+    }
+    return !!child.id
+      ? dbcontext.studentfrom.update(child, { where: { id: child.id } })
+      : dbcontext.studentfrom.create(child);
+  });
+
+  promises.push(...childrenPromise);
   await Promise.all(promises);
-  return facultyEntity;
+  return studentfromEntity;
 };
 
 /**
- * Delete a faculty
+ * Delete a studentfrom
  */
-const deletePromise = async (faculty, link) => {
+const deletePromise = async (studentfrom, link) => {
   try {
     // notification Info
-    await utils.validateDestroy(faculty);
-    faculty.deleted = true;
-    const result = faculty.save();
+    await utils.validateDestroy(studentfrom);
+    studentfrom.deleted = true;
+    const result = studentfrom.save();
     return result;
   } catch (error) {
     return error;
@@ -181,26 +199,24 @@ const deletePromise = async (faculty, link) => {
 };
 
 /**
- * Load faculty form
+ * Load studentfrom form
  */
-const loadFormPromise = async (faculty) => {
-  let facultyForm = {};
-  facultyForm.faculty = faculty ? faculty : {};
+const loadFormPromise = async (studentfrom) => {
+  let studentfromForm = {};
+  studentfromForm.studentfrom = studentfrom ? studentfrom : {};
 
-  let facultyRelationships = [];
-  facultyRelationships.push(worksInRelationshipListPromise());
+  let studentfromRelationships = [];
 
-  const results = await q.all(facultyRelationships);
+  const results = await q.all(studentfromRelationships);
 
-  facultyForm.worksIns = results.shift();
-  return facultyForm;
+  return studentfromForm;
 };
 
 /**
- * Search faculties by filter
+ * Search studentfroms by filter
  */
 const advanceSearchPromise = async (search) => {
-  var tableName = dbcontext.faculty.name;
+  var tableName = dbcontext.studentfrom.name;
   let where = [];
 
   where.push(
@@ -209,48 +225,13 @@ const advanceSearchPromise = async (search) => {
     })
   );
 
-  if (search.name != null) {
-    where.push(
-      Sequelize.where(
-        Sequelize.fn('lower', Sequelize.col(tableName + '.name')),
-        {
-          [Sequelize.Op.like]: '%' + search.name.toLowerCase() + '%'
-        }
-      )
-    );
-  }
-  if (search.rank != null) {
-    where.push(
-      Sequelize.where(
-        Sequelize.fn('lower', Sequelize.col(tableName + '.rank')),
-        {
-          [Sequelize.Op.like]: '%' + search.rank.toLowerCase() + '%'
-        }
-      )
-    );
-  }
-
-  if (search.worksIn != null) {
-    where.push(
-      Sequelize.where(Sequelize.col('worksIn.id'), {
-        [Sequelize.Op.eq]: search.worksIn
-      })
-    );
-  }
-
-  return await dbcontext.faculty
+  return await dbcontext.studentfrom
     .findAll({
       where: {
         [Sequelize.Op.and]: where
       },
-      attributes: ['id', 'name', 'rank'],
+      attributes: ['id'],
       include: [
-        {
-          model: dbcontext.department,
-          as: 'worksIn',
-
-          attributes: ['name']
-        },
         {
           model: dbcontext.user,
           as: 'createdBy'
@@ -262,35 +243,10 @@ const advanceSearchPromise = async (search) => {
         }
       ]
     })
-    .then((faculties) => {
-      faculties = faculties.map((x) => x.toJSON());
-      return faculties.filter((x) => true);
+    .then((studentfroms) => {
+      studentfroms = studentfroms.map((x) => x.toJSON());
+      return studentfroms.filter((x) => true);
     });
-};
-
-const worksInRelationshipListPromise = async (additionalWhere) => {
-  const tableName = dbcontext.department.name;
-  const where = [];
-
-  if (additionalWhere) {
-    where = where.concat(
-      dbcontext.helper.searchHelper(additionalWhere, dbcontext.branch)
-    );
-  }
-
-  where.push(
-    Sequelize.where(Sequelize.col(tableName + '.deleted'), {
-      [Sequelize.Op.eq]: false
-    })
-  );
-
-  return await dbcontext.department.findAll({
-    where: {
-      [Sequelize.Op.and]: where
-    },
-    attributes: ['id', 'name'],
-    order: [['name', 'ASC']]
-  });
 };
 
 // * START - Export modules * //

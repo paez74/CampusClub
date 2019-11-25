@@ -31,6 +31,7 @@ var role = dbcontext.sequelize.define(
     },
     active: {
       type: Sequelize.BOOLEAN,
+
       defaultValue: true
     },
     facultyCreate: {
@@ -49,6 +50,26 @@ var role = dbcontext.sequelize.define(
       defaultValue: false
     },
     facultyDelete: {
+      type: Sequelize.BOOLEAN,
+
+      defaultValue: false
+    },
+    studentfromCreate: {
+      type: Sequelize.BOOLEAN,
+
+      defaultValue: false
+    },
+    studentfromRead: {
+      type: Sequelize.BOOLEAN,
+
+      defaultValue: false
+    },
+    studentfromUpdate: {
+      type: Sequelize.BOOLEAN,
+
+      defaultValue: false
+    },
+    studentfromDelete: {
       type: Sequelize.BOOLEAN,
 
       defaultValue: false

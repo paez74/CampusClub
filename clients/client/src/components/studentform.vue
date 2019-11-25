@@ -59,6 +59,9 @@
             >
               <template slot-scope="{ props }">
                 <td class="text-xs-left">{{ props.item.phone }}</td>
+                <td class="text-xs-left">
+                  {{ props.item.advisor ? props.item.advisor.name : '' }}
+                </td>
                 <td class="text-xs-left">{{ props.item.name }}</td>
               </template>
             </entity-list-table>
@@ -221,6 +224,7 @@ export default {
       memberOfTableConfig: {
         headers: [
           { text: 'Telefono', value: 'phone' },
+          { text: '', value: 'advisor' },
           { text: 'Nombre', value: 'name' }
         ],
         enableContextMenu: true,

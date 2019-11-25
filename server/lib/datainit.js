@@ -11,8 +11,8 @@ module.exports.initialize = async function() {
           username: 'admin',
           password: 'admin',
           firstName: 'Administrador',
-          lastName: 'Paez',
-          email: 'paez74@live.com.mx',
+          lastName: 'Ochoa',
+          email: 'admin@bluepeople.com',
           active: true
         };
 
@@ -25,6 +25,10 @@ module.exports.initialize = async function() {
           facultyRead: true,
           facultyUpdate: true,
           facultyDelete: true,
+          studentfromCreate: true,
+          studentfromRead: true,
+          studentfromUpdate: true,
+          studentfromDelete: true,
           studentCreate: true,
           studentRead: true,
           studentUpdate: true,

@@ -2,10 +2,10 @@ const Sequelize = require('sequelize');
 const StringDecoder = require('string_decoder').StringDecoder;
 const ErrorEnums = require('../lib/enums/error');
 const utils = require('../utils/utils');
-const facultyValidation = require('../validations/faculty.validation');
+const studentfromValidation = require('../validations/studentfrom.validation');
 
-var faculty = dbcontext.sequelize.define(
-  'faculty',
+var studentfrom = dbcontext.sequelize.define(
+  'studentfrom',
   {
     id: {
       type: Sequelize.UUID,
@@ -17,14 +17,6 @@ var faculty = dbcontext.sequelize.define(
       type: Sequelize.BOOLEAN,
       allowNull: false,
       defaultValue: false
-    },
-    name: {
-      type: Sequelize.STRING,
-      allowNull: false
-    },
-    rank: {
-      type: Sequelize.STRING,
-      allowNull: false
     }
   },
   {
@@ -39,32 +31,27 @@ var faculty = dbcontext.sequelize.define(
           }
         }
         if (entity.deleted) {
-          await facultyValidation.onDeleteValidations(entity);
+          await studentfromValidation.onDeleteValidations(entity);
         } else {
-          facultyValidation.isFormComplete(entity);
-          await facultyValidation.onSaveValidations(entity);
+          await studentfromValidation.onSaveValidations(entity);
         }
       },
 
       beforeDestroy: async (entity, options) => {
-        await facultyValidation.onDeleteValidations(entity);
+        await studentfromValidation.onDeleteValidations(entity);
       }
     },
     validate: {
-      allRequiredFieldsAreFilled() {
-        const requiredFields = ['name', 'rank'];
-        if (utils.isAnyFieldNullOrEmpty(this, requiredFields)) {
-          throw new ErrorEnums.Enums.IncompleteFrom();
-        }
-      },
       validations() {}
     },
     freezeTableName: true,
-    tableName: 'faculty'
+    tableName: 'studentfrom'
   }
 );
 
-dbcontext.faculty = faculty;
+dbcontext.studentfrom = studentfrom;
 
-faculty.belongsTo(dbcontext.user, { as: 'createdBy', constraints: false });
-faculty.belongsTo(dbcontext.user, { as: 'updatedBy', constraints: false });
+studentfrom.belongsTo(dbcontext.user, { as: 'createdBy', constraints: false });
+studentfrom.belongsTo(dbcontext.user, { as: 'updatedBy', constraints: false });
+
+dbcontext.studentfrom.isHierarchy({ onDelete: 'CASCADE' }).sync();

@@ -2,6 +2,7 @@ const campusClub = require('../controllers/campusClub.controller');
 
 module.exports = function(app) {
   // Cross access
+  app.route('/api/campusClub/facultylist').get(campusClub.facultyList);
 
   // Routes
   app.route('/api/campusClub/form').get(campusClub.loadCampusClubForm);

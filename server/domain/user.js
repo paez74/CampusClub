@@ -38,6 +38,7 @@ var user = dbcontext.sequelize.define(
     },
     active: {
       type: Sequelize.BOOLEAN,
+
       defaultValue: true
     },
     recoveryCounter: {

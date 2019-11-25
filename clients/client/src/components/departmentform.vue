@@ -185,20 +185,20 @@ export default {
 .grid-container {
   grid-template-columns: repeat(12, calc((100% - 11 * 10px) / 12));
   grid-auto-rows: minmax(15px, auto);
-  row-gap: 10px;
+  row-gap: 6px;
   column-gap: 10px;
 }
 
 .grid-container .wrapper-2137966 {
   grid-column: 1 / span 12;
   grid-row: 1 / span 5;
-  height: calc((4 * 10px) + 15px * 5);
+  height: calc((4 * 6px) + 15px * 5);
   overflow: hidden;
 }
 .grid-container .wrapper-2542876 {
   grid-column: 1 / span 12;
   grid-row: 6 / span 5;
-  height: calc((4 * 10px) + 15px * 5);
+  height: calc((4 * 6px) + 15px * 5);
   overflow: hidden;
 }
 .grid-container .wrapper-3614566 {

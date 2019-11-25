@@ -72,12 +72,31 @@
               >
             </v-text-field>
           </div>
-          <div class="wrapper-special wrapper-3951988" tabindex="3">
+          <div class="wrapper-4512402" tabindex="3">
+            <div class="many-to-one-input-container">
+              <v-select
+                v-model="form.advisorId"
+                ref="advisor"
+                :items="advisors"
+                class="classic-select-field"
+                item-text="name"
+                item-value="id"
+                @change="onChangeAdvisorSelect"
+                :disabled="view"
+                :rules="[]"
+              >
+                <template slot="prepend"
+                  >Facultad</template
+                >
+              </v-select>
+            </div>
+          </div>
+          <div class="wrapper-special wrapper-3951988" tabindex="4">
             <v-btn color="secondary" @click="goBack()" class="backBtn">{{
               view ? 'Regresar' : 'Cancelar'
             }}</v-btn>
           </div>
-          <div class="wrapper-special wrapper-4121414" tabindex="4">
+          <div class="wrapper-special wrapper-4121414" tabindex="5">
             <v-btn
               color="primary"
               :disabled="requesting || view"
@@ -123,7 +142,11 @@ export default {
       grandParent: 'campusClub',
       showImageModal: false,
       imagePreviewId: '',
-      form: {}
+      form: {
+        advisor: {}
+      },
+      advisors: [],
+      showSelectAdvisor: false
     };
   },
   methods: {
@@ -134,8 +157,37 @@ export default {
       } else {
         this.$http.get('campusClub/form').then((response) => {
           var newform = response.body.data.campusClub;
+          newform.advisor = {};
           this.form = newform;
+          _.each(response.body.data.advisors, function(item) {
+            item.selected = false;
+          });
+          self.advisors = response.body.data.advisors;
         });
+      }
+    },
+    openSelectAdvisor() {
+      if (!this.view) {
+        this.showSelectAdvisor = true;
+      }
+    },
+    onChangeAdvisorSelect(value) {
+      this.form.advisor = this.advisors.find((advisor) => advisor.id === value);
+    },
+    setAdvisor(item) {
+      this.form.advisorId = item.id;
+      this.form.advisor = item;
+    },
+    getAdvisorRankDisplay(value) {
+      switch (value) {
+        case 'instructor':
+          return 'Instructor';
+        case 'assistant':
+          return 'Asistente';
+        case 'associate':
+          return 'Asociado';
+        case 'head':
+          return 'Titular';
       }
     },
     openImage(id) {
@@ -148,6 +200,15 @@ export default {
         (response) => {
           this.form = response.body.data.campusClub;
           this.updateLocationPosition();
+          if (this.form.advisor == null) {
+            this.form.advisor = {};
+          } else {
+            this.form.advisorId = this.form.advisor.id;
+          }
+          _.each(response.body.data.advisors, (item) => {
+            item.selected = false;
+          });
+          this.advisors = response.body.data.advisors;
 
           this.requesting = false;
         },
@@ -216,7 +277,11 @@ export default {
       }
     }
   },
-  computed: {},
+  computed: {
+    filterAdvisors: function() {
+      return this.advisors.filter((advisor) => [true].every((x) => x));
+    }
+  },
   watch: {}
 };
 </script>
@@ -255,13 +320,17 @@ export default {
   height: calc((4 * 10px) + 15px * 5);
   overflow: hidden;
 }
+.grid-container .wrapper-4512402 {
+  grid-column: 1 / span 12;
+  grid-row: 16 / span 5;
+}
 .grid-container .wrapper-3951988 {
   grid-column: 4 / span 2;
-  grid-row: 16 / span 3;
+  grid-row: 21 / span 3;
 }
 
 .grid-container .wrapper-4121414 {
   grid-column: 8 / span 2;
-  grid-row: 16 / span 3;
+  grid-row: 21 / span 3;
 }
 </style>

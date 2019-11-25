@@ -54,6 +54,7 @@ require('./routes/user.router')(app);
 require('./routes/notification.router')(app);
 require('./routes/reports.router')(app);
 require('./routes/faculty.router')(app);
+require('./routes/studentfrom.router')(app);
 require('./routes/student.router')(app);
 require('./routes/person.router')(app);
 require('./routes/role.router')(app);

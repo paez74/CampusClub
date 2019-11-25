@@ -1,6 +1,7 @@
 const SuccessEnums = require('../lib/enums/success');
 
 const campusClubLogic = require('../logics/campusClub.logic');
+const facultyLogic = require('../logics/faculty.logic');
 
 /**
  * campusClub middleware
@@ -119,3 +120,14 @@ exports.searchCampusClub = function(req, res) {
 /**
  * Cross access request
  */
+exports.facultyList = function(req, res) {
+  var additionalWhere = [];
+
+  dbcontext.initTransaction(
+    () => {
+      return facultyLogic.list(additionalWhere);
+    },
+    req,
+    res
+  );
+};

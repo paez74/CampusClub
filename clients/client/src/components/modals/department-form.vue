@@ -186,7 +186,7 @@ export default {
 .grid-container {
   grid-template-columns: repeat(12, calc((100% - 11 * 10px) / 12));
   grid-auto-rows: minmax(15px, auto);
-  row-gap: 10px;
+  row-gap: 6px;
   column-gap: 10px;
 }
 

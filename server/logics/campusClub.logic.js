@@ -20,7 +20,12 @@ class ListAttributes {
       'locationLongitude',
       'phone'
     ];
-    this.include = [];
+    this.include = [
+      {
+        model: dbcontext.faculty,
+        as: 'advisor'
+      }
+    ];
   }
 
   toJSON() {
@@ -75,6 +80,10 @@ const getByIdPromise = async (id, res) => {
     },
     include: [
       {
+        model: dbcontext.faculty,
+        as: 'advisor'
+      },
+      {
         model: dbcontext.user,
         as: 'createdBy',
         attributes: []
@@ -98,6 +107,10 @@ const findOnePromise = async (whereQuery) => {
   return await dbcontext.campusClub.findOne({
     where: whereQuery,
     include: [
+      {
+        model: dbcontext.faculty,
+        as: 'advisor'
+      },
       {
         model: dbcontext.user,
         as: 'createdBy',
@@ -183,9 +196,11 @@ const loadFormPromise = async (campusClub) => {
   campusClubForm.campusClub = campusClub ? campusClub : {};
 
   let campusClubRelationships = [];
+  campusClubRelationships.push(advisorRelationshipListPromise());
 
   const results = await q.all(campusClubRelationships);
 
+  campusClubForm.advisors = results.shift();
   return campusClubForm;
 };
 
@@ -223,6 +238,14 @@ const advanceSearchPromise = async (search) => {
     );
   }
 
+  if (search.advisor != null) {
+    where.push(
+      Sequelize.where(Sequelize.col('advisor.id'), {
+        [Sequelize.Op.eq]: search.advisor
+      })
+    );
+  }
+
   return await dbcontext.campusClub
     .findAll({
       where: {
@@ -230,6 +253,12 @@ const advanceSearchPromise = async (search) => {
       },
       attributes: ['id', 'name', 'phone'],
       include: [
+        {
+          model: dbcontext.faculty,
+          as: 'advisor',
+
+          attributes: ['name']
+        },
         {
           model: dbcontext.user,
           as: 'createdBy'
@@ -245,6 +274,31 @@ const advanceSearchPromise = async (search) => {
       campusClubs = campusClubs.map((x) => x.toJSON());
       return campusClubs.filter((x) => true);
     });
+};
+
+const advisorRelationshipListPromise = async (additionalWhere) => {
+  const tableName = dbcontext.faculty.name;
+  const where = [];
+
+  if (additionalWhere) {
+    where = where.concat(
+      dbcontext.helper.searchHelper(additionalWhere, dbcontext.branch)
+    );
+  }
+
+  where.push(
+    Sequelize.where(Sequelize.col(tableName + '.deleted'), {
+      [Sequelize.Op.eq]: false
+    })
+  );
+
+  return await dbcontext.faculty.findAll({
+    where: {
+      [Sequelize.Op.and]: where
+    },
+    attributes: ['id', 'name'],
+    order: [['name', 'ASC']]
+  });
 };
 
 // * START - Export modules * //

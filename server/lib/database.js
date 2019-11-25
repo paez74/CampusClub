@@ -75,6 +75,7 @@ require('../domain/notification');
 require('../domain/fileStorage');
 require('../domain/dbupdateHistory');
 require('./../domain/faculty');
+require('./../domain/studentfrom');
 require('./../domain/student');
 require('./../domain/person');
 require('./../domain/role');
@@ -85,10 +86,6 @@ require('./../domain/department');
 // Relationships
 dbcontext.faculty.belongsTo(dbcontext.department, {
   as: 'worksIn',
-  onDelete: 'RESTRICT'
-});
-dbcontext.faculty.hasMany(dbcontext.campusClub, {
-  as: 'advisorOfs',
   onDelete: 'RESTRICT'
 });
 dbcontext.student.belongsToMany(dbcontext.campusClub, {
@@ -118,6 +115,10 @@ dbcontext.role.belongsToMany(dbcontext.user, {
   as: 'roles',
   onDelete: 'RESTRICT',
   through: 'userrole'
+});
+dbcontext.campusClub.belongsTo(dbcontext.faculty, {
+  as: 'advisor',
+  onDelete: 'RESTRICT'
 });
 
 sequelize

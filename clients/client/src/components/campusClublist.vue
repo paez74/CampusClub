@@ -48,6 +48,20 @@
               >
             </v-text-field>
           </v-flex>
+
+          <v-flex xs12 sm4 md4>
+            <v-select
+              v-model="search.advisor"
+              :items="relationshipsOptions.advisor"
+              class="classic-select-field"
+              item-text="label"
+              item.value="value"
+            >
+              <template slot="prepend"
+                >Facultad</template
+              >
+            </v-select>
+          </v-flex>
         </v-layout>
       </v-container>
     </v-form>
@@ -58,6 +72,9 @@
     <entity-list-table :config="tableConfig" :list="list" :loading="loading">
       <template slot-scope="{ props }">
         <td class="text-xs-left">{{ props.item.phone }}</td>
+        <td class="text-xs-left">
+          {{ props.item.advisor ? props.item.advisor.name : '' }}
+        </td>
         <td class="text-xs-left">{{ props.item.name }}</td>
       </template>
     </entity-list-table>
@@ -122,6 +139,11 @@ export default {
           {
             text: 'Telefono',
             value: 'phone',
+            haveViewPermission: true
+          },
+          {
+            text: 'Facultad',
+            value: 'advisor.name',
             haveViewPermission: true
           },
           {
@@ -231,7 +253,20 @@ export default {
       );
     },
     setRelationshipsOptions: function() {
-      this.list.forEach((element, index) => {});
+      this.relationshipsOptions.advisor = [];
+      this.list.forEach((element, index) => {
+        if (!element.advisor) element.advisor = {};
+        if (element.advisor != null)
+          this.relationshipsOptions.advisor.push({
+            label: element.advisor.name,
+            value: element.advisor.id
+          });
+      });
+      this.relationshipsOptions.advisor = _.sortBy(
+        this.relationshipsOptions.advisor,
+        'label'
+      );
+      this.relationshipsOptions.advisor.unshift({ label: '', value: '' });
     },
     openLocation(latitude, longitude) {
       this.selectedEntityPosition = {

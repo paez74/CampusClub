@@ -109,6 +109,12 @@ export default {
           otherPermissions: []
         },
         {
+          name: 'studentfrom',
+          display: 'EstudianteDe',
+          haveCrudPermissions: true,
+          otherPermissions: []
+        },
+        {
           name: 'student',
           display: 'Estudiante',
           haveCrudPermissions: true,
@@ -157,6 +163,10 @@ export default {
         newform.facultyRead = false;
         newform.facultyUpdate = false;
         newform.facultyDelete = false;
+        newform.studentfromCreate = false;
+        newform.studentfromRead = false;
+        newform.studentfromUpdate = false;
+        newform.studentfromDelete = false;
         newform.studentCreate = false;
         newform.studentRead = false;
         newform.studentUpdate = false;

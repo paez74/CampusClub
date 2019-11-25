@@ -8,7 +8,7 @@
           @click="$router.go(-1)"
           >keyboard_arrow_left</v-icon
         >
-        Facultad
+        EstudianteDe
       </v-toolbar-title>
       <a class="filter-button" @click="showFilters = !showFilters"
         >Filtros <v-icon small>arrow_drop_down</v-icon></a
@@ -16,61 +16,16 @@
       <v-spacer></v-spacer>
       <v-btn
         class="classic-button-icon"
-        v-if="credentials.facultyCreate"
+        v-if="credentials.studentfromCreate"
         color="primary"
-        @click="goTo('facultyform')"
+        @click="goTo('studentfromform')"
       >
         <v-icon dark>person_add</v-icon>Agregar
       </v-btn>
     </v-toolbar>
     <v-form v-if="showFilters">
       <v-container fluid>
-        <v-layout row wrap>
-          <v-flex xs12 sm4 md4>
-            <v-select
-              v-model="search.rank"
-              :items="[
-                { label: '', value: '' },
-                { label: 'Instructor', value: 'instructor' },
-                { label: 'Asistente', value: 'assistant' },
-                { label: 'Asociado', value: 'associate' },
-                { label: 'Titular', value: 'head' }
-              ]"
-              class="classic-select-field"
-              item-text="label"
-              item.value="value"
-            >
-              <template slot="prepend"
-                >Rango</template
-              >
-            </v-select>
-          </v-flex>
-          <v-flex xs12 sm4 md4>
-            <v-text-field
-              v-model="search.name"
-              class="classic-text-field"
-              :rules="[]"
-            >
-              <template slot="prepend"
-                >Nombre</template
-              >
-            </v-text-field>
-          </v-flex>
-
-          <v-flex xs12 sm4 md4>
-            <v-select
-              v-model="search.worksIn"
-              :items="relationshipsOptions.worksIn"
-              class="classic-select-field"
-              item-text="label"
-              item.value="value"
-            >
-              <template slot="prepend"
-                >Departamento</template
-              >
-            </v-select>
-          </v-flex>
-        </v-layout>
+        <v-layout row wrap> </v-layout>
       </v-container>
     </v-form>
     <br />
@@ -78,13 +33,7 @@
     <br />
 
     <entity-list-table :config="tableConfig" :list="list" :loading="loading">
-      <template slot-scope="{ props }">
-        <td class="text-xs-left">{{ getRankDisplay(props.item.rank) }}</td>
-        <td class="text-xs-left">
-          {{ props.item.worksIn ? props.item.worksIn.name : '' }}
-        </td>
-        <td class="text-xs-left">{{ props.item.name }}</td>
-      </template>
+      <template slot-scope="{ props }"> </template>
     </entity-list-table>
   </div>
 </template>
@@ -107,34 +56,16 @@ export default {
       showFilters: false,
       fromCatalog: this.$route.params.from_catalog ? true : false,
       tableConfig: {
-        headers: [
-          {
-            text: 'Rango',
-            value: 'rank',
-            haveViewPermission: true
-          },
-          {
-            text: 'Departamento',
-            value: 'worksIn.name',
-            haveViewPermission: true
-          },
-          {
-            text: 'Nombre',
-            value: 'name',
-            haveViewPermission: true
-          }
-        ],
+        headers: [],
         enableContextMenu: true,
         hasLoading: true,
-        showView: () => this.credentials.facultyRead,
-        showEdit: () => this.credentials.facultyUpdate,
-        showDelete: () => this.credentials.facultyDelete,
+
         pagination: {},
         classicTheme: true,
         actions: (type, item) => {
           const actionsMap = {
-            view: () => this.goTo('facultydetail/' + item.id),
-            edit: () => this.goTo('facultyform/' + item.id),
+            view: () => this.goTo('studentfromdetail/' + item.id),
+            edit: () => this.goTo('studentfromform/' + item.id),
             delete: () => this.deleteRegistry(item.id)
           };
           actionsMap[type]();
@@ -145,7 +76,7 @@ export default {
   methods: {
     getList: function() {
       this.$http
-        .get('faculty')
+        .get('studentfrom')
         .then(
           (response) => {
             var list = response.body.data;
@@ -165,7 +96,7 @@ export default {
     },
     deleteRegistry(id) {
       this.showConfirm = false;
-      this.$http.delete('faculty/' + id).then(
+      this.$http.delete('studentfrom/' + id).then(
         (response) => {
           this.itemToDelete = '';
           this.searchByParams();
@@ -185,25 +116,8 @@ export default {
     searchOnTable: function() {
       var self = this;
       this.list = _.filter(this.source, function(item) {
-        return (
-          1 === 2 ||
-          (item.name
-            ? item.name.toLowerCase().includes(self.search.toLowerCase())
-            : 1 === 2)
-        );
+        return 1 === 2;
       });
-    },
-    getRankDisplay: function(value) {
-      switch (value) {
-        case 'instructor':
-          return 'Instructor';
-        case 'assistant':
-          return 'Asistente';
-        case 'associate':
-          return 'Asociado';
-        case 'head':
-          return 'Titular';
-      }
     },
     clean(field) {
       this.search[field] = null;
@@ -215,7 +129,7 @@ export default {
         .filter((key) => this.search[key] !== '')
         .map((key) => key + '=' + this.search[key])
         .join('&');
-      this.$http.get(`faculty/search?${queryString}`).then(
+      this.$http.get(`studentfrom/search?${queryString}`).then(
         (response) => {
           var list = response.body.data;
           this.list = list;
@@ -234,20 +148,7 @@ export default {
       );
     },
     setRelationshipsOptions: function() {
-      this.relationshipsOptions.worksIn = [];
-      this.list.forEach((element, index) => {
-        if (!element.worksIn) element.worksIn = {};
-        if (element.worksIn != null)
-          this.relationshipsOptions.worksIn.push({
-            label: element.worksIn.name,
-            value: element.worksIn.id
-          });
-      });
-      this.relationshipsOptions.worksIn = _.sortBy(
-        this.relationshipsOptions.worksIn,
-        'label'
-      );
-      this.relationshipsOptions.worksIn.unshift({ label: '', value: '' });
+      this.list.forEach((element, index) => {});
     }
   },
   mounted() {
