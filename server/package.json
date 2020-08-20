@@ -9,7 +9,7 @@
 	},
 	"dependencies": {
 		"cls-hooked": "^4.2.2",
-		"bcrypt": "3.0.0",
+		"bcrypt": "5.0.0",
 		"cookie-parser": "~1.4.3",
 		"cors": "^2.8.4",
 		"debug": "~2.6.9",
